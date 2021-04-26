@@ -78,6 +78,7 @@ class Marcadores extends DBAbstractModel
 
     // metodo get o read
     //necesitamos parametro siempre 
+    // getbyid
     public function get($id = '')
     {
         // si el id no esta vacio se hace la consulta
@@ -104,12 +105,10 @@ class Marcadores extends DBAbstractModel
 
     public function edit($id = '')
     {
-        $this->query = "UPDATE marcadores SET descripcion=:descripcion, enlace=:enlace idUsuario=:idUsuario WHERE id=:id";
+        $this->query = "UPDATE marcadores SET descripcion=:descripcion, enlace=:enlace WHERE id=:id";
         $this->parametros['descripcion'] = $this->descripcion;
         $this->parametros['enlace'] = $this->enlace;
-        $this->parametros['idUsuario'] = $this->idUsuario;
         $this->parametros['id'] = $id;
-
         $this->get_results_from_query();
         $this->mensaje = "Marcador modificada";
     }

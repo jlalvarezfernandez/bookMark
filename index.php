@@ -3,12 +3,13 @@
 include("Model/Usuarios.php");
 include("Model/Marcadores.php");
 include_once("Model/config.php");
+include_once("include/funciones.php");
 
 session_start();
 
 $nombre = "";
 $pass = "";
-$perfil= [];
+$perfil = [];
 
 
 
@@ -17,11 +18,9 @@ $enlaces = Marcadores::getInstancia();
 
 if (!isset($_SESSION['usuario'])) {
     $_SESSION['usuario'] = "invitado";
-}
-
-if (!isset($_SESSION['idUsuario'])) {
     $_SESSION['idUsuario'] = "";
 }
+
 
 if (!isset($_POST['enviar'])) {
     $nombre = $_POST['nombre'] ?? ""; // si existe lo pone a $post si no no
@@ -31,25 +30,16 @@ if (!isset($_POST['enviar'])) {
     if ($perfil['usuario'] != 'invitado') {
         $_SESSION['usuario'] = $perfil['usuario'];
         $_SESSION['idUsuario'] = $perfil['id'];
-     
+
 
         $listaEnlaces = $enlaces->getMarcadoresPorUsuario($perfil['id']);
-      
     } else {
-      
-
     }
 }
 
 // Funcion limpiar datos de entrada
 
-function limpiarDatos($datos)
-{
-    $datos = trim($datos);
-    $datos = stripslashes($datos);
-    $datos = htmlspecialchars($datos);
-    return $datos;
-}
+
 
 // declaracion de variables
 $procesaFormulario = false;
@@ -76,8 +66,7 @@ if (isset($_POST['enviarEnlaces'])) {
     $enlaces->setDescripcion($descripcion);
     $enlaces->setEnlace($enlace);
     $enlaces->setIdUsuario($_SESSION['idUsuario']);
-    $enlaces->set(); 
-
+    $enlaces->set();
 }
 
 
@@ -96,6 +85,9 @@ if (isset($_POST['enviarEnlaces'])) {
 <body>
     <h1>MARCADORES</h1>
     <?php
+    echo "<h3>Usted está en el sistema como ". $_SESSION['usuario']."</h3>";
+    echo "<a href=\"cerrarSesion.php\"><h3>Salir</h3></a>";
+
 
     if ($_SESSION['usuario'] == 'invitado') {
         echo "<form action=\"\" method=\"post\">";
@@ -110,28 +102,38 @@ if (isset($_POST['enviarEnlaces'])) {
         echo "<label for=\"enlace\">Nombre enlace: <input type=\"text\" name=\"enlace\" value=\"" . $enlace . "\"></label>";
         echo "<span class=\"" . $claseError . "\">" . $msgError . "</span>";
         echo "<br>";
+        echo "<br>";
         echo "<label for=\"descripcion\">Descripcion: <input type=\"text\" name=\"descripcion\" value=\"" . $descripcion . "\" size=100></label>";
         echo "<span class=\"" . $claseError . "\">" . $msgError . "</span>";
         echo "<br>";
+        echo "<br>";
         echo "<input type=\"submit\" value=\"Añadir Enlace\" name=\"enviarEnlaces\">";
+        echo "<br>";
         echo "</form>";
-        echo "Lista de enlaces";
+        echo "<br>";
+        echo "<br>";
+        echo "<h1>Lista de enlaces</h1>";
+      
         echo "<br>";
 
 
-  $listaEnlaces = $enlaces->getMarcadoresPorUsuario($_SESSION['idUsuario']);
-
+        $listaEnlaces = $enlaces->getMarcadoresPorUsuario($_SESSION['idUsuario']);
+      
         foreach ($listaEnlaces as $clave => $valor) {
-            echo $valor['enlace'] . ": " . $valor['descripcion'] . "<br>";
+
+            $accionEdit = "<a href=\"edit.php?id=" . $valor['id'] . "\">EDIT</a>";
+            $accionDelete = "<a href=\"delete.php?id=" . $valor['id'] . "\">DELETE</a>";
+            echo "<a href=\"" . $valor['enlace'] . "\" target=\"_blank\">" . $valor['descripcion'] . "</a> " . $accionEdit." ". $accionDelete."<br>";
+          
         }
         
     }
 
+
     ?>
 
 
-
-    <a href="cerrarSesion.php">Cerrar Sesion</a>
+    
 
 </body>
 
