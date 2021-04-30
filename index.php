@@ -37,10 +37,6 @@ if (!isset($_POST['enviar'])) {
     }
 }
 
-// Funcion limpiar datos de entrada
-
-
-
 // declaracion de variables
 $procesaFormulario = false;
 $enlace = "";
@@ -48,26 +44,6 @@ $descripcion = "";
 $claseError = "";
 $msgError = "";
 
-if (isset($_POST['enviarEnlaces'])) {
-
-    $procesaFormulario = true;
-    $enlace = limpiarDatos($_POST['enlace']);
-    $descripcion = limpiarDatos($_POST['descripcion']);
-    if (empty($enlace)) {
-        $msgError = "el campo no puede estar vacio";
-        $claseError = "clase_error";
-        $procesFormulario = false;
-    }
-    if (empty($descripcion)) {
-        $msgError = "el campo no puede estar vacio";
-        $claseError = "clase_error";
-        $procesaFormulario = false;
-    }
-    $enlaces->setDescripcion($descripcion);
-    $enlaces->setEnlace($enlace);
-    $enlaces->setIdUsuario($_SESSION['idUsuario']);
-    $enlaces->set();
-}
 
 
 
@@ -80,14 +56,13 @@ if (isset($_POST['enviarEnlaces'])) {
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <link rel="stylesheet" href="estilos.css">
 </head>
 
 <body>
     <h1>MARCADORES</h1>
     <?php
-    echo "<h3>Usted está en el sistema como ". $_SESSION['usuario']."</h3>";
-    echo "<a href=\"cerrarSesion.php\"><h3>Salir</h3></a>";
-
+    echo "<h3>Usted está en el sistema como " . $_SESSION['usuario'] . "</h3>";
 
     if ($_SESSION['usuario'] == 'invitado') {
         echo "<form action=\"\" method=\"post\">";
@@ -98,42 +73,65 @@ if (isset($_POST['enviarEnlaces'])) {
         echo "<input type=\"submit\" value=\"enviar\">";
         echo "</form>";
     } else {
-        echo "<form action=\"index.php\" method=\"POST\">";
-        echo "<label for=\"enlace\">Nombre enlace: <input type=\"text\" name=\"enlace\" value=\"" . $enlace . "\"></label>";
-        echo "<span class=\"" . $claseError . "\">" . $msgError . "</span>";
-        echo "<br>";
-        echo "<br>";
-        echo "<label for=\"descripcion\">Descripcion: <input type=\"text\" name=\"descripcion\" value=\"" . $descripcion . "\" size=100></label>";
-        echo "<span class=\"" . $claseError . "\">" . $msgError . "</span>";
-        echo "<br>";
-        echo "<br>";
-        echo "<input type=\"submit\" value=\"Añadir Enlace\" name=\"enviarEnlaces\">";
-        echo "<br>";
+        echo "<form action=\"new.php\" method=\"post\">";
+        echo "<input type=\"submit\" name= \"newEnlaces\" value=\"Nuevo\">";
         echo "</form>";
         echo "<br>";
         echo "<br>";
-        echo "<h1>Lista de enlaces</h1>";
-      
+
+
+        echo "<form action=\"\" method=\"post\">";
+        echo "<input type=\"submit\" name=\"busqueda\" value=\"Busqueda \">";
+        echo "<input type=\"text\" name=\"busquedaEnlace\" placeholder=\"busqueda de enlace\">";
+        echo "</form>";
+
+        echo "<br>";
         echo "<br>";
 
+        if (!isset($_POST['busqueda'])) {
+            $listaEnlaces = $enlaces->getMarcadoresPorUsuario($_SESSION['idUsuario']);
+            echo "<br>";
+            echo "<table>";
+            echo "<tr><td> Enlace </td> <td>  Editar </td> <td>  Borrar</td> </tr>";
+            foreach ($listaEnlaces as $clave => $valor) {
 
-        $listaEnlaces = $enlaces->getMarcadoresPorUsuario($_SESSION['idUsuario']);
-      
-        foreach ($listaEnlaces as $clave => $valor) {
+                $accionEdit = "<a href=\"edit.php?id=" . $valor['id'] . "\">EDIT</a>";
 
-            $accionEdit = "<a href=\"edit.php?id=" . $valor['id'] . "\">EDIT</a>";
-            $accionDelete = "<a href=\"delete.php?id=" . $valor['id'] . "\">DELETE</a>";
-            echo "<a href=\"" . $valor['enlace'] . "\" target=\"_blank\">" . $valor['descripcion'] . "</a> " . $accionEdit." ". $accionDelete."<br>";
-          
+                $accionDelete = "<a href=\"delete.php?id=" . $valor['id'] . "\">DELETE</a>";
+
+                echo "<tr>";
+                echo "<td>";
+                echo "<a href=\"" . $valor['enlace'] . "\" target=\"_blank\">" . $valor['descripcion'] . "</a><td> " . $accionEdit . "</td><td> " . $accionDelete . "</td>";
+                echo "</td>";
+                echo "</tr>";
+            }
+            echo "</table>";
+            echo "<a href=\"cerrarSesion.php\"><h3>Salir</h3></a>";
+        } else {
+            $busqueda = $enlaces->getBusquedaByDescripcion($_POST['busquedaEnlace']);
+
+            // var_dump($busqueda);
+            echo "<table>";
+            echo "<tr>";
+            echo "<td>id</td>";
+            echo "<td>descripcion</td>";
+            echo "<td>enlace</td>";
+            echo "</tr>";
+            foreach ($busqueda as $clave => $valor) {
+                echo "<td>" . $valor['id'] . "</td>";
+                echo "<td>" . $valor['descripcion'] . "</td>";
+                echo "<td><a href=" . $valor['enlace'] . ">" . $valor['enlace'] . "</a></td>";
+            }
+            echo "<a href=\"cerrarSesion.php\"><h3>Salir</h3></a>";
         }
-        
     }
+
 
 
     ?>
 
 
-    
+
 
 </body>
 

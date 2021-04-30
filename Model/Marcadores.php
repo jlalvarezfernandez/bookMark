@@ -136,6 +136,19 @@ class Marcadores extends DBAbstractModel
 
     }
 
+    // Método para buscar por descripcion y enlace
+
+    public function getBusquedaByDescripcion($descripcion){
+
+        $this->query = "SELECT * FROM marcadores WHERE descripcion =:descripcion";
+        $this->parametros['descripcion'] = $descripcion;
+        $this->get_results_from_query();
+        $this->mensaje = "Marcador encontrado";
+        return $this->rows;
+
+
+    }
+
 
 
 
