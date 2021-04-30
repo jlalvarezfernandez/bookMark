@@ -63,6 +63,7 @@ $msgError = "";
     <h1>MARCADORES</h1>
     <?php
     echo "<h3>Usted está en el sistema como " . $_SESSION['usuario'] . "</h3>";
+    
 
     if ($_SESSION['usuario'] == 'invitado') {
         echo "<form action=\"\" method=\"post\">";
@@ -72,6 +73,8 @@ $msgError = "";
         echo "<br>";
         echo "<input type=\"submit\" value=\"enviar\">";
         echo "</form>";
+        echo "No tienes cuenta?";
+        echo "<a href=\"registroUser.php\">REGISTRATE</a>";
     } else {
         echo "<form action=\"new.php\" method=\"post\">";
         echo "<input type=\"submit\" name= \"newEnlaces\" value=\"Nuevo\">";

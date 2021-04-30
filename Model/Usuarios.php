@@ -26,6 +26,8 @@ class Usuarios extends DBAbstractModel
     private $id;
     private $usuario;
     private $password;
+    private $perfil;
+    private $activo;
     private $created_at;
     private $updated_at;
 
@@ -41,14 +43,34 @@ class Usuarios extends DBAbstractModel
         return $this->usuario;
     }
 
-    public function setPasword($pasword)
+    public function setPassword($password)
     {
-        $this->pasword = $pasword;
+        $this->password = $password;
     }
 
-    public function getPasword()
+    public function getPassword()
     {
-        return $this->pasword;
+        return $this->password;
+    }
+
+    public function setPerfil($perfil)
+    {
+        $this->perfil = $perfil;
+    }
+
+    public function getPerfil()
+    {
+        return $this->perfil;
+    }
+
+    public function setActivo($activo)
+    {
+        $this->activo = $activo;
+    }
+
+    public function getActivo()
+    {
+        return $this->activo;
     }
 
 
@@ -58,10 +80,12 @@ class Usuarios extends DBAbstractModel
     // metodo set o create
     public function set()
     {
-        $this->query = "INSERT INTO usuarios(usuario, password) VALUES (:usuario, password)";
+        $this->query = "INSERT INTO usuarios(usuario, password, perfil, activo) VALUES (:usuario, :password, :perfil, :activo)";
 
         $this->parametros['usuario'] = $this->usuario;
         $this->parametros['password'] = $this->password;
+        $this->parametros['perfil'] = $this->perfil;
+        $this->parametros['activo'] = $this->activo;
         $this->get_results_from_query();
         $this->mensaje = "Usuario añadido ";
     }
