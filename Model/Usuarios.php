@@ -148,15 +148,33 @@ class Usuarios extends DBAbstractModel
         $this->parametros['password'] = $pass;
         $this->get_results_from_query();
         //autenticacion
-
-
         if (count($this->rows) == 1) {
             $datosLogin["usuario"] = $this->rows[0]['usuario'];
             $datosLogin["id"] = $this->rows[0]['id'];
+            $datosLogin["perfil"] = $this->rows[0]['perfil'];
+            //activo
+            if (!$this->rows[0]['activo']) {
+                $datosLogin["perfil"] = "bloqueado";
+            }
         } else {
 
             $datosLogin["usuario"] = "invitado";
         }
         return $datosLogin;
+    }
+
+    public function usersBloqueados(){
+        $this->query = "SELECT * FROM usuarios WHERE activo=0";
+        $this->get_results_from_query();
+        $this->mensaje = "Usuario bloqueado";
+        return $this->rows;
+    }
+
+    public function activarUsuarios($id){
+        $this->query = "UPDATE usuarios SET activo=1 WHERE id=:id";
+        $this->parametros['id'] = $id;
+        $this->get_results_from_query();
+        $this->mensaje = "Usuario activado";
+        return $this->rows;
     }
 }

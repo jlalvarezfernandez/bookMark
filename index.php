@@ -18,6 +18,7 @@ $enlaces = Marcadores::getInstancia();
 
 if (!isset($_SESSION['usuario'])) {
     $_SESSION['usuario'] = "invitado";
+    $_SESSION['perfil'] = "invitado";
     $_SESSION['idUsuario'] = "";
 }
 
@@ -29,12 +30,17 @@ if (!isset($_POST['enviar'])) {
     $perfil = $user->login($nombre, $pass);
     if ($perfil['usuario'] != 'invitado') {
         $_SESSION['usuario'] = $perfil['usuario'];
+        $_SESSION['perfil'] = $perfil['perfil'];
         $_SESSION['idUsuario'] = $perfil['id'];
 
 
         $listaEnlaces = $enlaces->getMarcadoresPorUsuario($perfil['id']);
     } else {
     }
+}
+
+ if(!isset($_POST['marcarTodos'])){
+    
 }
 
 // declaracion de variables
@@ -63,9 +69,9 @@ $msgError = "";
     <h1>MARCADORES</h1>
     <?php
     echo "<h3>Usted está en el sistema como " . $_SESSION['usuario'] . "</h3>";
-    
 
-    if ($_SESSION['usuario'] == 'invitado') {
+
+    if ($_SESSION['perfil'] == 'invitado') {
         echo "<form action=\"\" method=\"post\">";
         echo "<label for=\"nombre\"><input type=\"text\" name=\"nombre\"></label>";
         echo "<br>";
@@ -76,56 +82,97 @@ $msgError = "";
         echo "No tienes cuenta?";
         echo "<a href=\"registroUser.php\">REGISTRATE</a>";
     } else {
-        echo "<form action=\"new.php\" method=\"post\">";
-        echo "<input type=\"submit\" name= \"newEnlaces\" value=\"Nuevo\">";
-        echo "</form>";
-        echo "<br>";
-        echo "<br>";
-
-
-        echo "<form action=\"\" method=\"post\">";
-        echo "<input type=\"submit\" name=\"busqueda\" value=\"Busqueda \">";
-        echo "<input type=\"text\" name=\"busquedaEnlace\" placeholder=\"busqueda de enlace\">";
-        echo "</form>";
-
-        echo "<br>";
-        echo "<br>";
-
-        if (!isset($_POST['busqueda'])) {
-            $listaEnlaces = $enlaces->getMarcadoresPorUsuario($_SESSION['idUsuario']);
+        if ($_SESSION['perfil'] == 'bloqueado') {
+            echo "estas bloqueado";
             echo "<br>";
-            echo "<table>";
-            echo "<tr><td> Enlace </td> <td>  Editar </td> <td>  Borrar</td> </tr>";
-            foreach ($listaEnlaces as $clave => $valor) {
-
-                $accionEdit = "<a href=\"edit.php?id=" . $valor['id'] . "\">EDIT</a>";
-
-                $accionDelete = "<a href=\"delete.php?id=" . $valor['id'] . "\">DELETE</a>";
-
-                echo "<tr>";
-                echo "<td>";
-                echo "<a href=\"" . $valor['enlace'] . "\" target=\"_blank\">" . $valor['descripcion'] . "</a><td> " . $accionEdit . "</td><td> " . $accionDelete . "</td>";
-                echo "</td>";
-                echo "</tr>";
-            }
-            echo "</table>";
-            echo "<a href=\"cerrarSesion.php\"><h3>Salir</h3></a>";
+            echo "Ponte en contacto con el administrador";
+            echo "<br>";
+            echo "<a href=\"cerrarSesion.php\"><h3>Volver</h3></a>";
         } else {
-            $busqueda = $enlaces->getBusquedaByDescripcion($_POST['busquedaEnlace']);
+            if ($_SESSION['perfil'] == 'admin') {
+                $listaUsuarios = $user->usersBloqueados();
+                echo "Accion Administrador";
+                echo "<br>"; 
+                echo "<br>";
+                echo "<form action=\"index.php\" method=\"post\">";
+                echo "<input type=\"submit\" value=\"MARCAR\" name=\"marcarTodos\">";
+                echo "<br>";
+                echo "<br>";
+                echo "<table>";
+                    echo "<tr><td> Usuario </td> </tr>";
+                    foreach ($listaUsuarios as $clave => $valor) {
+                        echo "<tr>";
+                        echo "<td>";
+                        echo $valor['usuario']. "<input type=\"checkbox\" name=\"[]\" value=\"\" >";
+                        echo "</td>";
+                        echo "</tr>";
+                    }
+// para procesar el formulario
+                 /*    foreach ($idiomasCheckbox as $lenguas) {
+                        if (!empty($_POST['idiomas'])) {
+                          echo "<input type=\"checkbox\"  name =\"idiomas[]\" value=\"" . $lenguas . "\"" . (in_array($lenguas, $_POST['idiomas']) ? "checked" : "") . ">" . $lenguas . '</label>';
+                        } else {
+                          echo '<input type="checkbox"  name = "idiomas[]" value=' . "$lenguas" . '>' . $lenguas . '</label>';
+                        }
+                      } */
+// para mostrar los resultados una vez procesado el formulario
+/* foreach ($_POST['idiomas'] as $lengua) {
+    echo "Idiomas: " . $lengua . "<br>";
+  } */
+                    echo "</table>";
+                    echo "</form>";
+                echo "<a href=\"cerrarSesion.php\"><h3>Volver</h3></a>";
+            } else {
+                echo "<form action=\"new.php\" method=\"post\">";
+                echo "<input type=\"submit\" name= \"newEnlaces\" value=\"Nuevo\">";
+                echo "</form>";
+                echo "<br>";
+                echo "<br>";
+                echo "<form action=\"\" method=\"post\">";
+                echo "<input type=\"submit\" name=\"busqueda\" value=\"Busqueda \">";
+                echo "<input type=\"text\" name=\"busquedaEnlace\" placeholder=\"busqueda de enlace\">";
+                echo "</form>";
 
-            // var_dump($busqueda);
-            echo "<table>";
-            echo "<tr>";
-            echo "<td>id</td>";
-            echo "<td>descripcion</td>";
-            echo "<td>enlace</td>";
-            echo "</tr>";
-            foreach ($busqueda as $clave => $valor) {
-                echo "<td>" . $valor['id'] . "</td>";
-                echo "<td>" . $valor['descripcion'] . "</td>";
-                echo "<td><a href=" . $valor['enlace'] . ">" . $valor['enlace'] . "</a></td>";
+                echo "<br>";
+                echo "<br>";
+
+                if (!isset($_POST['busqueda'])) {
+                    $listaEnlaces = $enlaces->getMarcadoresPorUsuario($_SESSION['idUsuario']);
+                    echo "<br>";
+                    echo "<table>";
+                    echo "<tr><td> Enlace </td> <td>  Editar </td> <td>  Borrar</td> </tr>";
+                    foreach ($listaEnlaces as $clave => $valor) {
+
+                        $accionEdit = "<a href=\"edit.php?id=" . $valor['id'] . "\">EDIT</a>";
+
+                        $accionDelete = "<a href=\"delete.php?id=" . $valor['id'] . "\">DELETE</a>";
+
+                        echo "<tr>";
+                        echo "<td>";
+                        echo "<a href=\"" . $valor['enlace'] . "\" target=\"_blank\">" . $valor['descripcion'] . "</a><td> " . $accionEdit . "</td><td> " . $accionDelete . "</td>";
+                        echo "</td>";
+                        echo "</tr>";
+                    }
+                    echo "</table>";
+                    echo "<a href=\"cerrarSesion.php\"><h3>Salir</h3></a>";
+                } else {
+                    $busqueda = $enlaces->getBusquedaByDescripcion($_POST['busquedaEnlace']);
+
+                    // var_dump($busqueda);
+                    echo "<table>";
+                    echo "<tr>";
+                    echo "<td>id</td>";
+                    echo "<td>descripcion</td>";
+                    echo "<td>enlace</td>";
+                    echo "</tr>";
+                    foreach ($busqueda as $clave => $valor) {
+                        echo "<td>" . $valor['id'] . "</td>";
+                        echo "<td>" . $valor['descripcion'] . "</td>";
+                        echo "<td><a href=" . $valor['enlace'] . ">" . $valor['enlace'] . "</a></td>";
+                    }
+                    echo "<a href=\"cerrarSesion.php\"><h3>Salir</h3></a>";
+                }
             }
-            echo "<a href=\"cerrarSesion.php\"><h3>Salir</h3></a>";
         }
     }
 
