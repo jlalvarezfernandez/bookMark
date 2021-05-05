@@ -39,8 +39,7 @@ if (!isset($_POST['enviar'])) {
     }
 }
 
- if(!isset($_POST['marcarTodos'])){
-    
+if (!isset($_POST['marcarTodos'])) {
 }
 
 // declaracion de variables
@@ -92,35 +91,48 @@ $msgError = "";
             if ($_SESSION['perfil'] == 'admin') {
                 $listaUsuarios = $user->usersBloqueados();
                 echo "Accion Administrador";
-                echo "<br>"; 
-                echo "<br>";
-                echo "<form action=\"index.php\" method=\"post\">";
-                echo "<input type=\"submit\" value=\"MARCAR\" name=\"marcarTodos\">";
                 echo "<br>";
                 echo "<br>";
-                echo "<table>";
-                    echo "<tr><td> Usuario </td> </tr>";
-                    foreach ($listaUsuarios as $clave => $valor) {
-                        echo "<tr>";
-                        echo "<td>";
-                        echo $valor['usuario']. "<input type=\"checkbox\" name=\"[]\" value=\"\" >";
-                        echo "</td>";
-                        echo "</tr>";
-                    }
-// para procesar el formulario
-                 /*    foreach ($idiomasCheckbox as $lenguas) {
-                        if (!empty($_POST['idiomas'])) {
-                          echo "<input type=\"checkbox\"  name =\"idiomas[]\" value=\"" . $lenguas . "\"" . (in_array($lenguas, $_POST['idiomas']) ? "checked" : "") . ">" . $lenguas . '</label>';
+                if (count($listaUsuarios) == 0) {
+                    echo "Ninguna solicitud de admisión pendiente";
+                } else {
+                    $estado = "DESMARCAR";
+                    $checked = "checked";
+                    
+                    if (isset($_POST['seleccionar'])) {
+                        if ($_POST['seleccionar'] == "DESMARCAR") {
+                            $checked = "";
+                            $estado = "MARCAR";
                         } else {
-                          echo '<input type="checkbox"  name = "idiomas[]" value=' . "$lenguas" . '>' . $lenguas . '</label>';
+                            $estado = "DESMARCAR";
+                            $checked = "checked";
                         }
-                      } */
-// para mostrar los resultados una vez procesado el formulario
-/* foreach ($_POST['idiomas'] as $lengua) {
-    echo "Idiomas: " . $lengua . "<br>";
-  } */
-                    echo "</table>";
+                    }
+                if (isset($_POST['validar'])) {
+                    foreach ($_POST['usuario'] as $valor) {
+                       $user->activarUsuarios($valor);
+                   } 
+                   header("location:index.php");
+
+                }
+                    echo "<form action=\"index.php\" method=\"post\">";
+                    echo "<input type=\"submit\" name=\"seleccionar\" value=\"" . $estado . "\">";
+                    echo "<br>";
+                    echo "<br>";
+                    foreach ($listaUsuarios as $valor) {
+                        //echo "<input type=\"checkbox\" name=\"" . $valor['id'] . "\" value=\"" . $valor['id'] . "\" " . $checked . ">" . $valor['usuario'] . "<br>";
+                        echo "<input type=\"checkbox\" name=\"usuario[]\" value=\"" . $valor['id'] . "\" " . $checked . ">" . $valor['usuario'] . "<br>";
+                    }
+                    echo "<br>";
+
+                    echo "<input type=\"submit\" name=\"validar\" value=\"VALIDAR\">";
+
                     echo "</form>";
+                }
+
+
+
+
                 echo "<a href=\"cerrarSesion.php\"><h3>Volver</h3></a>";
             } else {
                 echo "<form action=\"new.php\" method=\"post\">";
@@ -186,3 +198,5 @@ $msgError = "";
 </body>
 
 </html>
+
+<!-- //SELECT enlace FROM `marcadores` group by enlace HAVING COUNT(*) >=3 -->
